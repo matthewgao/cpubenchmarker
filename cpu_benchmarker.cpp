@@ -41,6 +41,8 @@ void* run(void* arg){
 void display_usage(){
     printf("Help, A tool to make the CPU run on the full horse power.\n");
     printf("\t-t specify a thread num\n");
+    printf("\t-l specify loop times per thread num\n");
+    printf("\t-d thread run in detach mode\n");
 }
 
 int main(int argc, char**argv)
@@ -63,10 +65,11 @@ int main(int argc, char**argv)
                 process_num = atoi(optarg);
                 break;
             case 'l':
-		loop_per_thread = atoi(optarg);
-		break;
+		        loop_per_thread = atoi(optarg);
+		        break;
             case 'd':
                 is_detach = true;
+                break;
             case '?':
             default:
                 display_usage();
@@ -76,7 +79,6 @@ int main(int argc, char**argv)
     }
 
     pthread_t* tid = (pthread_t*)malloc(sizeof(pthread_t)*thread_num);
-
 
     struct timespec start, finish;
     double elapsed;
