@@ -16,22 +16,24 @@ double compute_pi(size_t dt)
     return pi * 4.0;
 }
 
-void* run(void*){
+void* run(void* arg){
     struct timespec start, finish;
     double elapsed;
+    int loop = *((int*)arg);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     double pi;
-    pi = compute_pi(12800000000);
-
+    for(int i = 0; i< loop; i++){
+        pi = compute_pi(1280000000);
+    }
     clock_gettime(CLOCK_MONOTONIC, &finish);
 
     elapsed = (finish.tv_sec - start.tv_sec);
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
 
 
-    printf("Thread %lx: %f Time : %f\n", (long)pthread_self(), pi, elapsed);
+    printf("Thread %lx: %f Time : %f, Run %d times\n", (long)pthread_self(), pi, elapsed, loop);
 
     return NULL;
 }
@@ -46,8 +48,9 @@ int main(int argc, char**argv)
     clock_t start_time, end_time;
     int thread_num = 1;
     int process_num = 1;
+    int loop_per_thread = 1;
     bool is_detach = false;
-    static const char *optString = "dt:p:?";
+    static const char *optString = "dt:p:l:?";
     int opt = -1;
     opt = getopt( argc, argv, optString );
     
@@ -59,6 +62,9 @@ int main(int argc, char**argv)
             case 'p':
                 process_num = atoi(optarg);
                 break;
+            case 'l':
+		loop_per_thread = atoi(optarg);
+		break;
             case 'd':
                 is_detach = true;
             case '?':
@@ -78,7 +84,7 @@ int main(int argc, char**argv)
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     for(int i=0; i < thread_num; i++){
-        pthread_create(&(tid[i]), NULL, run, NULL);
+        pthread_create(&(tid[i]), NULL, run, &loop_per_thread);
         if(is_detach){
             pthread_detach(tid[i]);
         }
